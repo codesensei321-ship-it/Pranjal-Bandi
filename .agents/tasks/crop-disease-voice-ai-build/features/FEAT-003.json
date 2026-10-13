@@ -1,0 +1,23 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Wire ChatDrawer into AnalysisPage with 'Chat with AI' button and add CSS tweaks for the drawer overlay/toggle. Depends on FEAT-001 and FEAT-002.",
+  "status": "completed",
+  "steps": [
+    "1. Modify `frontend/src/pages/AnalysisPage.jsx`: (a) Remove the VoiceChat import. (b) Add import for ChatDrawer. (c) Add import for MessageSquare from lucide-react. (d) Add `const [drawerOpen, setDrawerOpen] = useState(false)` state. (e) Remove the entire VoiceChat section at the bottom (the motion.div with custom={4} wrapping <VoiceChat>). (f) Add a floating 'Chat with AI' button: position it at top-right of the analysis content area. Use a motion.button with glass-hover class, flex items-center gap-2, pulsing MessageSquare icon (animate-pulse or a subtle pulse via framer-motion), text 'Chat with AI', onClick={() => setDrawerOpen(true)}. Place it right after the opening motion.div of the page, before the grid, as a flex justify-end mb-4 row. (g) Render <ChatDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} disease={disease} weather={weather} /> at the end of the component (outside the max-w-7xl container, so the overlay covers the full viewport).",
+    "2. Modify `frontend/src/index.css`: Add a .drawer-overlay utility class if needed (though the overlay is likely done inline via Tailwind in ChatDrawer). Add smooth transition for the toggle buttons if not covered by Tailwind. Ensure .glass class works well on the drawer panel (it already has bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl — the drawer may override rounded to rounded-l-2xl or just use border-l). Add a .chat-toggle-active class: `@apply bg-accent-purple/30 text-white rounded-lg px-3 py-1.5 text-sm font-medium transition-all;` and .chat-toggle-inactive: `@apply text-white/50 rounded-lg px-3 py-1.5 text-sm font-medium transition-all hover:text-white/70;`. Keep changes minimal."
+  ],
+  "acceptance_criteria": [
+    "AnalysisPage no longer renders VoiceChat inline — instead shows a 'Chat with AI' button",
+    "Clicking the button opens ChatDrawer as a slide-over from the right",
+    "ChatDrawer receives disease and weather props for context-aware chat",
+    "The dark overlay behind the drawer closes it on click",
+    "CSS additions are minimal and consistent with existing glass/purple theme",
+    "`npm run build` passes with zero errors"
+  ],
+  "verification": [
+    "cd frontend && npm run build"
+  ],
+  "blocked_reason": null,
+  "findings": "Wired ChatDrawer into AnalysisPage: added ChatDrawer import, MessageSquare icon from lucide-react, drawerOpen state, floating 'Chat with AI' button with pulsing icon before the grid, and ChatDrawer rendered outside max-w-7xl container via Fragment wrapper. Added .chat-toggle-active and .chat-toggle-inactive CSS classes in index.css @layer components. Build passes with zero errors (2604 modules, 10s)."
+}

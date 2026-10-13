@@ -44,6 +44,14 @@
   .glow-purple {
     box-shadow: 0 0 40px rgba(139, 92, 246, 0.15), 0 0 80px rgba(139, 92, 246, 0.05);
   }
+
+  .chat-toggle-active {
+    @apply bg-accent-purple/30 text-white rounded-lg px-3 py-1.5 text-sm font-medium transition-all;
+  }
+
+  .chat-toggle-inactive {
+    @apply text-white/50 rounded-lg px-3 py-1.5 text-sm font-medium transition-all hover:text-white/70;
+  }
 }
 
 /* Ambient background blobs */

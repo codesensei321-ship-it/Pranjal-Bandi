@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { MessageSquare } from 'lucide-react';
 import DiseaseCard from '../components/DiseaseCard';
 import WeatherCard from '../components/WeatherCard';
 import TreatmentPanel from '../components/TreatmentPanel';
-// VoiceChat removed in FEAT-002 — ChatDrawer wired in FEAT-003
+import ChatDrawer from '../components/ChatDrawer';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { predictDisease, getWeather, sendChat } from '../hooks/useApi';
 import useLocation_ from '../hooks/useLocation';
@@ -29,6 +30,7 @@ function AnalysisPage() {
   const [loadingDisease, setLoadingDisease] = useState(true);
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [loadingAnalysis, setLoadingAnalysis] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const imageFile = state?.imageFile;
   const preview = state?.preview;
@@ -108,12 +110,31 @@ function AnalysisPage() {
   if (!imageFile) return null;
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
     >
+      {/* Chat with AI floating button */}
+      <div className="flex justify-end mb-4">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => setDrawerOpen(true)}
+          className="glass-hover flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white/90 hover:text-white"
+        >
+          <motion.span
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+          >
+            <MessageSquare size={18} />
+          </motion.span>
+          Chat with AI
+        </motion.button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Left column — image */}
         <motion.div
@@ -158,8 +179,15 @@ function AnalysisPage() {
         </div>
       </div>
 
-      {/* Chat drawer wired in FEAT-003 */}
     </motion.div>
+
+    <ChatDrawer
+      isOpen={drawerOpen}
+      onClose={() => setDrawerOpen(false)}
+      disease={disease}
+      weather={weather}
+    />
+    </>
   );
 }
 

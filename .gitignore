@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Build output
+frontend/dist/
+
+# Environment variables
+.env
+.env.local
+frontend/.env.local
+backend/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# TFLite model (large binary)
+*.tflite

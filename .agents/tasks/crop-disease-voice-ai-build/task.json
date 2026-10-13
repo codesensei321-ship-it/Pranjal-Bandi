@@ -1,0 +1,7 @@
+{
+  "task_id": "task-orb-ui-redesign",
+  "task_description": "Replace framer-motion orb with ElevenLabs 3D Three.js orb, redesign analysis page UX with slide-over chat drawer (chat/speech toggle), keep dark purple glassmorphism theme",
+  "status": "completed",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

@@ -1,34 +1,22 @@
 {
   "id": "FEAT-001",
   "type": "feat",
-  "description": "Build the complete FastAPI backend with all endpoints (predict, weather, chat, voice) and services. Backend lives at d:\\Pranjal Bandi\\Crop-Disease-D-P-main\\backend\\. The TFLite model is loaded from ../model_unquant.tflite relative to the backend directory. Labels are read from ../labels.txt. All API keys come from env vars defined in backend/.env (DEEPGRAM_API_KEY, GROQ_API_KEY, OPENWEATHERMAP_API_KEY, HOST, PORT). This feature is independent of FEAT-002.",
+  "description": "Install Three.js dependencies and create the ElevenLabs 3D orb component, replacing the old framer-motion orb. This is the foundational dependency — FEAT-002 and FEAT-003 depend on this.",
   "status": "completed",
   "steps": [
-    "1. Create backend/requirements.txt with: fastapi, uvicorn[standard], python-dotenv, python-multipart, numpy, Pillow, tensorflow, groq, deepgram-sdk, httpx.",
-    "2. Create backend/services/model_service.py: Load TFLite model from Path(__file__).resolve().parent.parent.parent / 'model_unquant.tflite'. Read labels from ../labels.txt, parsing each line as 'index label_text'. Use functools.lru_cache so interpreter loads once. Expose predict(image_bytes) -> dict with disease, confidence, is_healthy. Preprocessing: PIL Image open from bytes, convert RGB, resize (224,224), np.array/255.0, expand_dims axis=0 float32. Inference: set_tensor, invoke, get_tensor, argmax + softmax confidence. is_healthy = 'healthy' in disease_name.lower().",
-    "3. Create backend/services/weather_service.py: async function get_weather(lat, lon) that calls httpx.AsyncClient GET to api.openweathermap.org/data/2.5/weather with lat, lon, appid=os.getenv('OPENWEATHERMAP_API_KEY'), units=metric. Return dict: temperature, humidity, description, city (from 'name'), icon (build URL from icon code), wind_speed. Handle errors gracefully.",
-    "4. Create backend/services/llm_service.py: Use groq Python package. Initialize Groq client with api_key=os.getenv('GROQ_API_KEY'). Function chat(message, disease, weather, history) builds messages array: system prompt says 'You are an expert agricultural advisor. The user's plant has been diagnosed with {disease}. Local weather: {weather}. Give concise, voice-friendly responses (2-3 sentences). Focus on practical advice about the disease, treatment, prevention, and how weather conditions affect it.' Then appends history (list of {role, content} dicts) and user message. Calls client.chat.completions.create(model='llama-3.3-70b-versatile', messages=messages). Returns {reply: response.choices[0].message.content}.",
-    "5. Create backend/services/voice_service.py: Two functions. (a) get_deepgram_token(): use deepgram SDK — from deepgram import DeepgramClient; client = DeepgramClient(os.getenv('DEEPGRAM_API_KEY')); create a project key scoped to usage:write with TTL 60 seconds via client.manage.v('1').create_key(project_id, options). Return the key. NOTE: if SDK key creation is complex, alternatively just return the main API key with a comment that in production a scoped short-lived key should be created. (b) text_to_speech(text): use httpx to POST to https://api.deepgram.com/v1/speak?model=aura-asteria-en with Authorization: Token {DEEPGRAM_API_KEY}, Content-Type: application/json, body {text: text}. Return the audio bytes response.",
-    "6. Create backend/routers/predict.py: FastAPI APIRouter. POST /predict accepts UploadFile image. Reads bytes, calls model_service.predict(bytes), returns JSON {disease, confidence, is_healthy}.",
-    "7. Create backend/routers/weather.py: APIRouter. GET /weather with query params lat: float, lon: float. Calls weather_service.get_weather(lat, lon), returns the dict.",
-    "8. Create backend/routers/chat.py: APIRouter. POST /chat accepts JSON body {message: str, disease: str, weather: dict|None, history: list}. Calls llm_service.chat(...), returns {reply}.",
-    "9. Create backend/routers/voice.py: APIRouter. GET /deepgram-token calls voice_service.get_deepgram_token(), returns {token}. POST /tts accepts JSON {text: str}, calls voice_service.text_to_speech(text), returns StreamingResponse with media_type='audio/mpeg'.",
-    "10. Create backend/app.py: FastAPI app. Load dotenv. Include all four routers. Add CORSMiddleware allowing origins ['http://localhost:5173', 'http://localhost:3000'], allow_credentials=True, allow_methods=['*'], allow_headers=['*']. Add a root GET / health check returning {status: 'ok'}.",
-    "11. Create backend/services/__init__.py and backend/routers/__init__.py (empty files for Python packages)."
+    "1. Run `npm install three @react-three/fiber @react-three/drei` in frontend/ directory. These are the Three.js ecosystem packages required by the ElevenLabs orb.",
+    "2. Create `frontend/src/components/ui/Orb.jsx` — port the ElevenLabs orb from TypeScript to plain JSX. Source: https://github.com/elevenlabs/ui (MIT licensed), file: apps/www/registry/elevenlabs-ui/ui/orb.tsx. Remove all TypeScript type annotations (OrbProps type, AgentState type, typed useRef generics, function parameter types, delta: number annotation). Keep all Three.js logic, GLSL shaders, splitmix32 helper, clamp01, and the full fragment/vertex shader strings intact. The component exports `Orb` as a named export. Props: colors (default ['#CADCFC','#A0B9D1']), colorsRef, resizeDebounce (100), seed, agentState (null), volumeMode ('auto'), manualInput, manualOutput, inputVolumeRef, outputVolumeRef, getInputVolume, getOutputVolume, className. The perlin-noise texture URL (Google CDN) stays as-is — it's a runtime fetch, not a build dependency.",
+    "3. Delete the old `frontend/src/components/Orb.jsx` (framer-motion based orb). This file will no longer be imported by anything after FEAT-002 rewires VoiceChat consumers."
   ],
   "acceptance_criteria": [
-    "backend/app.py imports and starts without errors: cd backend && python -c \"from app import app; print('OK')\"",
-    "All router files are syntactically valid Python",
-    "requirements.txt contains all needed packages",
-    "Model path resolves to ../model_unquant.tflite relative to backend/",
-    "Env vars match exactly: DEEPGRAM_API_KEY, GROQ_API_KEY, OPENWEATHERMAP_API_KEY, HOST, PORT",
-    "CORS configured for localhost:5173 and localhost:3000"
+    "frontend/src/components/ui/Orb.jsx exists and exports a named `Orb` function component",
+    "frontend/src/components/Orb.jsx (old framer-motion orb) is deleted",
+    "package.json includes three, @react-three/fiber, @react-three/drei in dependencies",
+    "`npm run build` in frontend/ completes with zero errors (the old Orb import in VoiceChat.jsx may cause a build error — if so, temporarily comment out the VoiceChat import in AnalysisPage.jsx or update VoiceChat.jsx to not import the deleted Orb. Ensure the build passes.)"
   ],
   "verification": [
-    "cd backend && pip install -r requirements.txt",
-    "cd backend && python -c \"from app import app; print('Backend imports OK')\"",
-    "cd backend && python -m py_compile app.py && python -m py_compile routers/predict.py && python -m py_compile routers/weather.py && python -m py_compile routers/chat.py && python -m py_compile routers/voice.py && python -m py_compile services/model_service.py && python -m py_compile services/weather_service.py && python -m py_compile services/llm_service.py && python -m py_compile services/voice_service.py"
+    "cd frontend && npm run build"
   ],
   "blocked_reason": null,
-  "findings": "Python 3.12.10 with TensorFlow 2.17.1 used (was already installed on system). requirements.txt pins tensorflow==2.16.2 but system has 2.17.1 — both work. deepgram-sdk installed is 4.8.1 (not 3.8.1 as pinned — user had it pre-installed). All imports verified OK. The model loads from ../model_unquant.tflite and labels from ../labels.txt relative to backend/. CORS allows localhost:5173 and localhost:3000. FEAT-002 can rely on endpoints: POST /predict, GET /weather?lat=&lon=, POST /chat, GET /deepgram-token, POST /tts, GET / (health)."
+  "findings": "Installed three@latest, @react-three/fiber@8, @react-three/drei@9 (v8/v9 needed for React 18 compat — latest fiber v9 requires React 19). VoiceChat.jsx Orb import and <Orb/> usage commented out and replaced with placeholder div — FEAT-002 must wire the new ui/Orb there. The new Orb uses named export: import { Orb } from './ui/Orb'."
 }

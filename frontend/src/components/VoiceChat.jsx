@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, MessageSquare } from 'lucide-react';
-import Orb from './Orb';
+// import Orb from './Orb'; // Removed: old framer-motion Orb deleted in FEAT-001
 import useVoice from '../hooks/useVoice';
 import { sendChat } from '../hooks/useApi';
 
@@ -130,9 +130,9 @@ function VoiceChat({ disease, weather }) {
         )}
       </div>
 
-      {/* Orb */}
+      {/* Orb placeholder — old framer-motion Orb removed in FEAT-001, new 3D Orb wired in FEAT-002 */}
       <div className="flex justify-center mb-6">
-        <Orb state={voiceState} onClick={handleOrbClick} />
+        <div className="w-24 h-24 rounded-full bg-accent-purple/20" />
       </div>
 
       {/* Text input fallback */}

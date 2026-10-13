@@ -19,6 +19,3 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
-
-# TFLite model (large binary)
-*.tflite

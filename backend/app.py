@@ -10,10 +10,15 @@ load_dotenv()
 
 app = FastAPI(title="Crop Disease Voice AI")
 
-# CORS — allow the Vite dev server and common local ports
+# CORS — allow local dev + production frontend
+cors_origins = ["http://localhost:5173", "http://localhost:3000"]
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    cors_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

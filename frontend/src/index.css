@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,10 +7,9 @@
 @layer base {
   body {
     @apply bg-background-dark text-white antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   }
 
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -16,17 +17,17 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(139, 92, 246, 0.3);
+    background: rgba(74, 222, 128, 0.2);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(139, 92, 246, 0.5);
+    background: rgba(74, 222, 128, 0.4);
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+    @apply bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] rounded-3xl;
   }
 
   .glass-hover {
@@ -34,27 +35,46 @@
   }
 
   .glass-hover:hover {
-    @apply bg-white/[0.08] border-white/20 shadow-lg shadow-accent-purple/5;
+    @apply bg-white/[0.07] border-white/[0.12];
+    box-shadow: 0 8px 32px rgba(74, 222, 128, 0.06);
+  }
+
+  .card-green {
+    background: linear-gradient(135deg, rgba(30, 58, 30, 0.7), rgba(26, 46, 26, 0.5));
+    border: 1px solid rgba(74, 222, 128, 0.1);
+    @apply backdrop-blur-xl rounded-3xl;
+  }
+
+  .card-green:hover {
+    border-color: rgba(74, 222, 128, 0.2);
+    box-shadow: 0 8px 32px rgba(74, 222, 128, 0.08);
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-accent-purple via-accent-violet to-accent-purple bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-accent-green via-accent-emerald to-accent-green bg-clip-text text-transparent;
   }
 
-  .glow-purple {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.15), 0 0 80px rgba(139, 92, 246, 0.05);
+  .gradient-text-warm {
+    @apply bg-gradient-to-r from-green-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent;
   }
 
-  .chat-toggle-active {
-    @apply bg-accent-purple/30 text-white rounded-lg px-3 py-1.5 text-sm font-medium transition-all;
+  .glow-green {
+    box-shadow: 0 0 40px rgba(74, 222, 128, 0.1), 0 0 80px rgba(74, 222, 128, 0.04);
   }
 
-  .chat-toggle-inactive {
-    @apply text-white/50 rounded-lg px-3 py-1.5 text-sm font-medium transition-all hover:text-white/70;
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-2xl font-medium text-sm transition-all duration-300;
+    background: linear-gradient(135deg, #4ade80, #34d399);
+    color: #0f1a0f;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+    transform: translateY(-1px);
   }
 }
 
-/* Ambient background blobs */
+/* Ambient background */
 .ambient-bg {
   position: fixed;
   inset: 0;
@@ -66,14 +86,14 @@
 .ambient-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.12;
+  filter: blur(120px);
+  opacity: 0.08;
 }
 
 .ambient-blob-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, #8b5cf6, transparent);
+  background: radial-gradient(circle, #4ade80, transparent);
   top: -200px;
   right: -100px;
   animation: blob 7s infinite;
@@ -82,7 +102,7 @@
 .ambient-blob-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #7c3aed, transparent);
+  background: radial-gradient(circle, #34d399, transparent);
   bottom: -150px;
   left: -100px;
   animation: blob 7s infinite 2s;
@@ -91,7 +111,7 @@
 .ambient-blob-3 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, #a78bfa, transparent);
+  background: radial-gradient(circle, #22c55e, transparent);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

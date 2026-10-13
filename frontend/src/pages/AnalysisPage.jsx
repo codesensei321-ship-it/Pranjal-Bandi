@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import DiseaseCard from '../components/DiseaseCard';
 import WeatherCard from '../components/WeatherCard';
 import TreatmentPanel from '../components/TreatmentPanel';
-import VoiceChat from '../components/VoiceChat';
+// VoiceChat removed in FEAT-002 — ChatDrawer wired in FEAT-003
 import SkeletonLoader from '../components/SkeletonLoader';
 import { predictDisease, getWeather, sendChat } from '../hooks/useApi';
 import useLocation_ from '../hooks/useLocation';
@@ -158,10 +158,7 @@ function AnalysisPage() {
         </div>
       </div>
 
-      {/* Voice Chat section */}
-      <motion.div custom={4} variants={fadeIn} initial="hidden" animate="show">
-        <VoiceChat disease={disease} weather={weather} />
-      </motion.div>
+      {/* Chat drawer wired in FEAT-003 */}
     </motion.div>
   );
 }

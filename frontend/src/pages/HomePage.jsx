@@ -5,7 +5,8 @@ import { Camera, ArrowRight, Leaf, Sparkles, X, ImagePlus } from 'lucide-react';
 
 function HomePage() {
   const navigate = useNavigate();
-  const inputRef = useRef(null);
+  const galleryRef = useRef(null);
+  const cameraRef = useRef(null);
   const [preview, setPreview] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -19,7 +20,8 @@ function HomePage() {
   const clearImage = () => {
     setSelectedFile(null);
     setPreview(null);
-    if (inputRef.current) inputRef.current.value = '';
+    if (galleryRef.current) galleryRef.current.value = '';
+    if (cameraRef.current) cameraRef.current.value = '';
   };
 
   const handleAnalyze = () => {
@@ -69,57 +71,79 @@ function HomePage() {
         >
           <AnimatePresence mode="wait">
             {!preview ? (
-              /* Upload / Capture zone */
               <motion.div
                 key="upload"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
+                className="space-y-3"
                 onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
                 onDragLeave={() => setIsDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setIsDragOver(false); handleFile(e.dataTransfer.files[0]); }}
-                onClick={() => inputRef.current?.click()}
-                className={`card-green cursor-pointer p-10 sm:p-12 text-center transition-all duration-300 ${
-                  isDragOver ? 'border-accent-green/40 scale-[1.02]' : ''
-                }`}
-                role="button"
-                tabIndex={0}
-                aria-label="Upload or capture a leaf image"
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
               >
-                <div className="flex flex-col items-center gap-4">
-                  <motion.div
-                    animate={{ scale: [1, 1.08, 1] }}
-                    transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-                    className="p-5 rounded-2xl bg-accent-green/10"
-                  >
-                    <Camera className="w-8 h-8 text-accent-green" />
-                  </motion.div>
-
-                  <div>
-                    <p className="text-white/90 font-semibold text-base mb-1">Capture or Upload</p>
-                    <p className="text-white/30 text-sm">Tap to take a photo or choose from gallery</p>
+                {/* Take Photo button — opens camera directly on mobile */}
+                <div
+                  onClick={() => cameraRef.current?.click()}
+                  className={`card-green cursor-pointer p-8 text-center transition-all duration-300 ${
+                    isDragOver ? 'border-accent-green/40 scale-[1.02]' : ''
+                  }`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Take a photo"
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') cameraRef.current?.click(); }}
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <motion.div
+                      animate={{ scale: [1, 1.08, 1] }}
+                      transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+                      className="p-4 rounded-2xl bg-accent-green/10"
+                    >
+                      <Camera className="w-7 h-7 text-accent-green" />
+                    </motion.div>
+                    <div>
+                      <p className="text-white/90 font-semibold text-base mb-0.5">Take a Photo</p>
+                      <p className="text-white/30 text-sm">Open camera and capture a leaf</p>
+                    </div>
                   </div>
-
-                  <div className="flex items-center gap-4 text-xs text-white/20 mt-1">
-                    <span className="flex items-center gap-1"><Camera className="w-3 h-3" /> Camera</span>
-                    <span className="text-white/10">|</span>
-                    <span className="flex items-center gap-1"><ImagePlus className="w-3 h-3" /> Gallery</span>
-                  </div>
+                  {/* Camera input — opens camera on mobile */}
+                  <input
+                    ref={cameraRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={(e) => handleFile(e.target.files[0])}
+                  />
                 </div>
 
-                {/* Single input: on mobile opens camera chooser, on desktop opens file picker */}
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => handleFile(e.target.files[0])}
-                />
+                {/* Upload from gallery — smaller, secondary */}
+                <div
+                  onClick={() => galleryRef.current?.click()}
+                  className="card-green cursor-pointer px-5 py-4 transition-all duration-300 flex items-center gap-3"
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Upload from gallery"
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') galleryRef.current?.click(); }}
+                >
+                  <div className="p-2.5 rounded-xl bg-white/[0.04]">
+                    <ImagePlus className="w-5 h-5 text-white/40" />
+                  </div>
+                  <div>
+                    <p className="text-white/70 font-medium text-sm">Upload from gallery</p>
+                    <p className="text-white/25 text-xs">JPG, PNG, WebP</p>
+                  </div>
+                  {/* Gallery input — no capture, opens file picker / gallery */}
+                  <input
+                    ref={galleryRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleFile(e.target.files[0])}
+                  />
+                </div>
               </motion.div>
             ) : (
-              /* Image preview + analyze */
               <motion.div
                 key="preview"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -128,13 +152,8 @@ function HomePage() {
                 transition={{ duration: 0.2 }}
                 className="space-y-4"
               >
-                {/* Image with close button */}
                 <div className="relative card-green p-1.5 glow-green">
-                  <img
-                    src={preview}
-                    alt="Selected leaf"
-                    className="w-full rounded-2xl object-cover max-h-[320px]"
-                  />
+                  <img src={preview} alt="Selected leaf" className="w-full rounded-2xl object-cover max-h-[320px]" />
                   <button
                     onClick={(e) => { e.stopPropagation(); clearImage(); }}
                     className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/70 transition-colors"
@@ -144,7 +163,6 @@ function HomePage() {
                   </button>
                 </div>
 
-                {/* Analyze button */}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
@@ -157,7 +175,6 @@ function HomePage() {
                   <ArrowRight className="w-4 h-4 text-[#0f1a0f]" />
                 </motion.button>
 
-                {/* Retake */}
                 <button
                   onClick={clearImage}
                   className="w-full text-center text-sm text-white/30 hover:text-white/50 transition-colors py-2"

@@ -12,13 +12,15 @@ app = FastAPI(title="Crop Disease Voice AI")
 
 # CORS — allow local dev + production frontend
 cors_origins = ["http://localhost:5173", "http://localhost:3000"]
-frontend_url = os.getenv("FRONTEND_URL")
+frontend_url = os.getenv("FRONTEND_URL", "")
 if frontend_url:
-    cors_origins.append(frontend_url)
+    # Strip trailing slash to avoid mismatch
+    cors_origins.append(frontend_url.rstrip("/"))
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.up\.railway\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

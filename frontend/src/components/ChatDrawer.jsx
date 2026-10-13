@@ -10,6 +10,7 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
   const [mode, setMode] = useState('chat'); // 'chat' | 'speech'
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
+  const isSendingRef = useRef(false);
   const messagesRef = useRef(messages);
 
   // Shared onTranscript callback for useVoice — adds user msg, calls sendChat, adds AI reply, returns reply for TTS
@@ -58,7 +59,8 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
   // Text send handler shared by ChatMode
   const handleTextSend = useCallback(
     async (text) => {
-      if (!text || isSending) return;
+      if (!text || isSendingRef.current) return;
+      isSendingRef.current = true;
       setIsSending(true);
       const userMsg = { role: 'user', content: text };
       setMessages((prev) => {
@@ -89,10 +91,11 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
           return next;
         });
       } finally {
+        isSendingRef.current = false;
         setIsSending(false);
       }
     },
-    [isSending, disease, weather]
+    [disease, weather]
   );
 
   const handleOrbClick = () => {

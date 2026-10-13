@@ -7,9 +7,10 @@ from PIL import Image
 import tensorflow as tf
 
 
-# Paths relative to this file → workspace root
-_MODEL_PATH = Path(__file__).resolve().parent.parent.parent / "model_unquant.tflite"
-_LABELS_PATH = Path(__file__).resolve().parent.parent.parent / "labels.txt"
+# Paths: look in the backend folder itself (works locally and on Railway)
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+_MODEL_PATH = _BACKEND_DIR / "model_unquant.tflite"
+_LABELS_PATH = _BACKEND_DIR / "labels.txt"
 
 
 def _load_labels() -> list[str]:

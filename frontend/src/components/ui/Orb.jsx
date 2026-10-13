@@ -1,9 +1,32 @@
 "use client"
 
-import { useEffect, useMemo, useRef } from "react"
+import { Suspense, Component, useEffect, useMemo, useRef } from "react"
 import { useTexture } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
+
+// Locally bundled texture — falls back to CDN if local file is missing
+const PERLIN_TEXTURE_URL = "/perlin-noise.png"
+
+class OrbErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className={this.props.className ?? "relative h-full w-full"}>
+          <div className="flex items-center justify-center h-full w-full rounded-full bg-accent-purple/20 animate-pulse" />
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 export function Orb({
   colors = ["#CADCFC", "#A0B9D1"],
@@ -21,30 +44,34 @@ export function Orb({
   className,
 }) {
   return (
-    <div className={className ?? "relative h-full w-full"}>
-      <Canvas
-        resize={{ debounce: resizeDebounce }}
-        gl={{
-          alpha: true,
-          antialias: true,
-          premultipliedAlpha: true,
-        }}
-      >
-        <Scene
-          colors={colors}
-          colorsRef={colorsRef}
-          seed={seed}
-          agentState={agentState}
-          volumeMode={volumeMode}
-          manualInput={manualInput}
-          manualOutput={manualOutput}
-          inputVolumeRef={inputVolumeRef}
-          outputVolumeRef={outputVolumeRef}
-          getInputVolume={getInputVolume}
-          getOutputVolume={getOutputVolume}
-        />
-      </Canvas>
-    </div>
+    <OrbErrorBoundary className={className}>
+      <div className={className ?? "relative h-full w-full"}>
+        <Canvas
+          resize={{ debounce: resizeDebounce }}
+          gl={{
+            alpha: true,
+            antialias: true,
+            premultipliedAlpha: true,
+          }}
+        >
+          <Suspense fallback={null}>
+            <Scene
+              colors={colors}
+              colorsRef={colorsRef}
+              seed={seed}
+              agentState={agentState}
+              volumeMode={volumeMode}
+              manualInput={manualInput}
+              manualOutput={manualOutput}
+              inputVolumeRef={inputVolumeRef}
+              outputVolumeRef={outputVolumeRef}
+              getInputVolume={getInputVolume}
+              getOutputVolume={getOutputVolume}
+            />
+          </Suspense>
+        </Canvas>
+      </div>
+    </OrbErrorBoundary>
   )
 }
 
@@ -67,9 +94,7 @@ function Scene({
   const targetColor1Ref = useRef(new THREE.Color(colors[0]))
   const targetColor2Ref = useRef(new THREE.Color(colors[1]))
   const animSpeedRef = useRef(0.1)
-  const perlinNoiseTexture = useTexture(
-    "https://storage.googleapis.com/eleven-public-cdn/images/perlin-noise.png"
-  )
+  const perlinNoiseTexture = useTexture(PERLIN_TEXTURE_URL)
 
   const agentRef = useRef(agentState)
   const modeRef = useRef(volumeMode)

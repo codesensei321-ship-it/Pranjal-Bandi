@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import ChatMode from './ChatMode';
@@ -10,13 +10,19 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
   const [mode, setMode] = useState('chat'); // 'chat' | 'speech'
   const [messages, setMessages] = useState([]);
   const [isSending, setIsSending] = useState(false);
+  const messagesRef = useRef(messages);
 
   // Shared onTranscript callback for useVoice — adds user msg, calls sendChat, adds AI reply, returns reply for TTS
   const onTranscript = useCallback(
     async (text) => {
-      setMessages((prev) => [...prev, { role: 'user', content: text }]);
+      const userMsg = { role: 'user', content: text };
+      setMessages((prev) => {
+        const next = [...prev, userMsg];
+        messagesRef.current = next;
+        return next;
+      });
       try {
-        const historyForApi = messages.map((m) => ({
+        const historyForApi = messagesRef.current.map((m) => ({
           role: m.role,
           content: m.content,
         }));
@@ -26,15 +32,23 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
           weather,
           historyForApi
         );
-        setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+        setMessages((prev) => {
+          const next = [...prev, { role: 'assistant', content: data.reply }];
+          messagesRef.current = next;
+          return next;
+        });
         return data.reply;
       } catch {
         const fallback = 'Sorry, I had trouble processing that. Please try again.';
-        setMessages((prev) => [...prev, { role: 'assistant', content: fallback }]);
+        setMessages((prev) => {
+          const next = [...prev, { role: 'assistant', content: fallback }];
+          messagesRef.current = next;
+          return next;
+        });
         return fallback;
       }
     },
-    [messages, disease, weather]
+    [disease, weather]
   );
 
   const { state: voiceState, transcript, startListening, stopListening } = useVoice({
@@ -46,9 +60,14 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
     async (text) => {
       if (!text || isSending) return;
       setIsSending(true);
-      setMessages((prev) => [...prev, { role: 'user', content: text }]);
+      const userMsg = { role: 'user', content: text };
+      setMessages((prev) => {
+        const next = [...prev, userMsg];
+        messagesRef.current = next;
+        return next;
+      });
       try {
-        const historyForApi = messages.map((m) => ({
+        const historyForApi = messagesRef.current.map((m) => ({
           role: m.role,
           content: m.content,
         }));
@@ -58,17 +77,22 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
           weather,
           historyForApi
         );
-        setMessages((prev) => [...prev, { role: 'assistant', content: data.reply }]);
+        setMessages((prev) => {
+          const next = [...prev, { role: 'assistant', content: data.reply }];
+          messagesRef.current = next;
+          return next;
+        });
       } catch {
-        setMessages((prev) => [
-          ...prev,
-          { role: 'assistant', content: 'Sorry, something went wrong.' },
-        ]);
+        setMessages((prev) => {
+          const next = [...prev, { role: 'assistant', content: 'Sorry, something went wrong.' }];
+          messagesRef.current = next;
+          return next;
+        });
       } finally {
         setIsSending(false);
       }
     },
-    [isSending, messages, disease, weather]
+    [isSending, disease, weather]
   );
 
   const handleOrbClick = () => {
@@ -106,8 +130,10 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
               {/* Chat / Speech toggle */}
-              <div className="flex gap-1 rounded-lg bg-white/5 p-1">
+              <div role="tablist" aria-label="Chat mode" className="flex gap-1 rounded-lg bg-white/5 p-1">
                 <button
+                  role="tab"
+                  aria-selected={mode === 'chat'}
                   onClick={() => setMode('chat')}
                   className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     mode === 'chat'
@@ -118,6 +144,8 @@ function ChatDrawer({ isOpen, onClose, disease, weather }) {
                   Chat
                 </button>
                 <button
+                  role="tab"
+                  aria-selected={mode === 'speech'}
                   onClick={() => setMode('speech')}
                   className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     mode === 'speech'
